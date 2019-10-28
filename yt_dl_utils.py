@@ -3,7 +3,7 @@ import youtube_dl
 
 
 
-
+# downloads only audio in mp3 from youtube url, if no out_path is given, will download next to this file with vid title
 def dl_audio_only(yt_url, out_path = None):
     ydl_opts = {
         'format': 'bestaudio/best',
