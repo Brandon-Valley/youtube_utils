@@ -8,10 +8,10 @@ def dl_audio_only(yt_url, out_path = None):
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
+                                'key'             : 'FFmpegExtractAudio',
+                                'preferredcodec'  : 'mp3',
+                                'preferredquality': '192',
+                          }],
     }
     
     if out_path != None:
