@@ -59,6 +59,10 @@ def download_youtube_vids_from_vid_url_dest_path_d(vid_url_dest_path_d):
     for vid_url, dest_path in vid_url_dest_path_d.items():
         download_youtube_vid(vid_url, dest_path)
 
+def _get_path_safe_str(in_str):
+    """ # Replace any special chars that can't be in path with '_' """
+    return in_str.translate({ord(c): "_" for c in ":*<>?|`"})
+
 # Could improve with threading
 def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_"):
     # https://www.codegrepper.com/tpc/python+download+youtube+playlist
@@ -67,10 +71,12 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
     print(f'Downloading all videos in playlist: {p.title}...')
 
     for video in p.videos:
-        out_vid_path = os.path.join(out_dir_path, p.title, video.title + ".mp4")
+        # Replace any special chars that can't be in path with '_'
+        # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
+        path_safe_playlist_title = _get_path_safe_str(p.title)
+        path_safe_video_title = _get_path_safe_str(video.title)
 
-        # replace any special chars that can't be in path with '_'
-        out_vid_path = out_vid_path.translate({ord(c): "_" for c in "@#$%^&*()[]{};:,<>?|`~=+"})
+        out_vid_path = os.path.join(out_dir_path, path_safe_playlist_title, path_safe_video_title + ".mp4")
 
         if replace_spaces_with != None:
             out_vid_path = out_vid_path.replace(" ", replace_spaces_with)
