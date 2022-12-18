@@ -69,6 +69,9 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
     for video in p.videos:
         out_vid_path = os.path.join(out_dir_path, p.title, video.title + ".mp4")
 
+        # replace any special chars that can't be in path with '_'
+        out_vid_path = out_vid_path.translate({ord(c): "_" for c in "@#$%^&*()[]{};:,<>?|`~=+"})
+
         if replace_spaces_with != None:
             out_vid_path = out_vid_path.replace(" ", replace_spaces_with)
 
@@ -84,8 +87,10 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 if __name__ == "__main__":
     TEST_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J"
     TEST_OUT_DIR_PATH = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore"
-    dl_all_videos_in_playlist(TEST_PLAYLIST_URL, TEST_OUT_DIR_PATH)
-
+    # dl_all_videos_in_playlist(TEST_PLAYLIST_URL, TEST_OUT_DIR_PATH)
+    dl_all_videos_in_playlist("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+                             "C:\\Users\\Brandon\\Documents\\Personal_Projects\\tik_tb_vid_big_data\\ignore\\tbs_pl_dl")
+    
 
     print("done")
     # p = input("Enter th url of the playlist")
