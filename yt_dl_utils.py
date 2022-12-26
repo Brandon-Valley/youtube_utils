@@ -76,6 +76,12 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         path_safe_playlist_title = _get_path_safe_str(p.title)
         path_safe_video_title = _get_path_safe_str(video.title)
 
+        # print(video.caption_tracks())
+        # for caption_track in video.caption_tracks():
+        #     print(f"{caption_track=}")
+        # print(video.initial_data)
+        # print(video.initial_data)
+
         out_vid_path = os.path.join(out_dir_path, path_safe_playlist_title, path_safe_video_title + ".mp4")
 
         if replace_spaces_with != None:
@@ -91,12 +97,25 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 
 
 if __name__ == "__main__":
-    TEST_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J"
-    TEST_OUT_DIR_PATH = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore"
-    # dl_all_videos_in_playlist(TEST_PLAYLIST_URL, TEST_OUT_DIR_PATH)
-    dl_all_videos_in_playlist("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-                             "C:\\Users\\Brandon\\Documents\\Personal_Projects\\tik_tb_vid_big_data\\ignore\\tbs_pl_dl")
-    
+    # TEST_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J"
+    # TEST_OUT_DIR_PATH = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore"
+    # # dl_all_videos_in_playlist(TEST_PLAYLIST_URL, TEST_OUT_DIR_PATH)
+    # dl_all_videos_in_playlist("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+    #                          "C:\\Users\\Brandon\\Documents\\Personal_Projects\\tik_tb_vid_big_data\\ignore\\tbs_pl_dl")
+    # out_vid_path = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore\\sub"
+    # cmd = "youtube-dl --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=l0U7SxXHkPY"
+    # cmd = "youtube-dl --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
+    # cmd = "youtube-dl --write-auto-sub --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
+    out_dir_path = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore\\herb_test"
+    Path(out_dir_path).mkdir(parents=True, exist_ok=True)
+    # cmd = f"youtube-dl --write-auto-sub --sub-format srt --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
+    # cmd = f"youtube-dl --write-auto-sub https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
+    # cmd = f"youtube-dl --write-auto-sub --write-sub --sub-lang en,id --sub-format srt/sub/ssa/vtt/ass/best --convert-subs srt https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
+    # cmd = f"youtube-dl --write-auto-sub --write-sub --sub-lang en --sub-format srt/sub/ssa/vtt/ass/best --embed-subs https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
+    cmd = f"youtube-dl --write-auto-sub https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
+    print(f"{cmd=}")
+    subprocess.call(cmd, shell=True)
+
 
     print("done")
     # p = input("Enter th url of the playlist")
