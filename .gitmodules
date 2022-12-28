@@ -1,0 +1,3 @@
+[submodule "sms/logger"]
+	path = sms/logger
+	url = https://github.com/Brandon-Valley/logger.git
