@@ -171,7 +171,7 @@ def _fix_ttml_sub_times(in_ttml_path):
         next_line_start_str, next_line_end_str = _get_begin_and_end_time_strs_from_line(next_line)
         print(f"....{next_line_start_str=}")
         print(f"....{next_line_end_str=}")
-
+   
         if next_line_start_str < cur_line_end_str:
             # replace current line's end time with next line's start time
             pre_end_split_str = cur_line.split(' end="')[0] + ' end="'
