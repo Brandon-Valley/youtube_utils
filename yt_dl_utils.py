@@ -76,7 +76,7 @@ def _get_path_safe_str(in_str):
 
 # Could improve with threading
 # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
-def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", separate_sub_file = True):
+def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", sub_style = "no_subs"):
     # https://www.codegrepper.com/tpc/python+download+youtube+playlist
     p = Playlist(playlist_url)
 
@@ -94,10 +94,9 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         # print(video.initial_data)
         # print(video.initial_data)
 
-
         # Very lazy way of doing things, should probably use pytube for everything
         # LATER should check if yt vid has actual subtitles before just downloading auto-subs
-        if separate_sub_file:
+        if sub_style == "separate_file":
             out_template = os.path.join(out_dir_path, path_safe_playlist_title, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
 
             if replace_spaces_with != None:
@@ -107,7 +106,17 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             print(f"Running cmd: {cmd}...")
             subprocess.call(cmd, shell = True)
 
-        else:
+        elif sub_style == "embed_subs":
+            out_template = os.path.join(out_dir_path, path_safe_playlist_title, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
+
+            if replace_spaces_with != None:
+                out_template = out_template.replace(" ", replace_spaces_with)
+
+            cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
+            print(f"Running cmd: {cmd}...")
+            subprocess.call(cmd, shell = True)
+
+        elif sub_style == "no_subs":
             out_vid_path = os.path.join(out_dir_path, path_safe_playlist_title, path_safe_video_title + ".mp4")
 
             if replace_spaces_with != None:
@@ -119,6 +128,9 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             print(f"Downloading {video.title} to {out_vid_path}...")
             st = video.streams.get_highest_resolution()
             st.download(filename=out_vid_path)
+
+        else:
+            raise Exception(f"ERROR: Invalid {sub_style=}")
 
 # LATER if last sub hanging around too long, could use # https://stackoverflow.com/questions/14295673/convert-string-into-datetime-time-object
 def _fix_ttml_sub_times(in_ttml_path):
@@ -234,7 +246,14 @@ if __name__ == "__main__":
     # ttml_test_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/vl_178__Family_Guy__Winning_Ticket_(Clip)___TBS__PERFECT_SUB_PLACEMENT_EXAMPLE/Family_Guy__Winning_Ticket_(Clip)___TBS_tsbfd_40.ttml"
     # _fix_ttml_sub_times(ttml_test_path)
 
-    re_time_subs_for_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed")
+    # re_time_subs_for_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed")
+
+    # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
+    dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
+                                 out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/embed_subs_pl_test",
+                                  replace_spaces_with = "_",
+                                  sub_style = "embed_subs")
+
 
     print("done")
     # p = input("Enter th url of the playlist")
