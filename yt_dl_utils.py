@@ -6,6 +6,7 @@ import youtube_dl
 import subprocess
 
 from sms.logger import txt_logger
+from sms.file_system_utils import file_system_utils as fsu
 #
 # https://www.youtube.com/channel/UCxfpjrP56c2ADNXK9RQ1zAg
 # https://www.youtube.com/channel/UCB7Fk050iWZ2LBfgi9tro3A/videos
@@ -125,20 +126,15 @@ def _fix_ttml_sub_times(in_ttml_path):
 
     def _get_begin_and_end_time_strs_from_line(line):
         # Parse begin_str & end_str from line
-        # print(line)
         s_line_1 = line.split('<p begin="')[1]
-        # print(s_line_1)
         begin_str, s_line_2 = s_line_1.split('" end="')
         print(f"..{begin_str=}")
-        # print(f"{s_line_2=}")
         end_str, s_line_3 = s_line_2.split('" style="')
         print(f"..{end_str=}")
         return begin_str, end_str
 
     og_ttml_lines = txt_logger.read(in_ttml_path)
-    # pprint(og_ttml_lines)
     new_ttml_lines = og_ttml_lines
-
 
     subs_started = False
 
@@ -180,12 +176,25 @@ def _fix_ttml_sub_times(in_ttml_path):
             print(f"{new_line=}")
             new_ttml_lines[line_num] = new_line
 
-    # pprint(new_ttml_lines)    
     txt_logger.write(new_ttml_lines, in_ttml_path)
 
 def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
-    pass
+    vid_sub_dir_path_l = fsu.get_dir_content_l(in_dir_path, "dir")
 
+    for vid_sub_dir_path in vid_sub_dir_path_l:
+
+        sub_file_path_l = list(Path(vid_sub_dir_path).glob("*.ttml"))
+
+        if len(sub_file_path_l) == 0:
+            print("no subs in ", vid_sub_dir_path)
+            continue
+        elif len(sub_file_path_l) > 1:
+            raise Exception(f"Error: more than 1 - {sub_file_path_l}")
+
+        sub_file_path = sub_file_path_l[0].__str__()
+
+        print(f"Fixing timing for {sub_file_path=}")
+        _fix_ttml_sub_times(sub_file_path)
 
 
 
@@ -222,8 +231,10 @@ if __name__ == "__main__":
     # dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", separate_sub_file = True)
 
 
-    ttml_test_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/vl_178__Family_Guy__Winning_Ticket_(Clip)___TBS__PERFECT_SUB_PLACEMENT_EXAMPLE/Family_Guy__Winning_Ticket_(Clip)___TBS_tsbfd_40.ttml"
-    _fix_ttml_sub_times(ttml_test_path)
+    # ttml_test_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/vl_178__Family_Guy__Winning_Ticket_(Clip)___TBS__PERFECT_SUB_PLACEMENT_EXAMPLE/Family_Guy__Winning_Ticket_(Clip)___TBS_tsbfd_40.ttml"
+    # _fix_ttml_sub_times(ttml_test_path)
+
+    re_time_subs_for_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed")
 
     print("done")
     # p = input("Enter th url of the playlist")
