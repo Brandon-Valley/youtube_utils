@@ -1,3 +1,6 @@
 [submodule "sms/logger"]
 	path = sms/logger
 	url = https://github.com/Brandon-Valley/logger.git
+[submodule "sms/file_system_utils"]
+	path = sms/file_system_utils
+	url = https://github.com/Brandon-Valley/file_system_utils.git
