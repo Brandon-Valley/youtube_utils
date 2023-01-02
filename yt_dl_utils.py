@@ -119,7 +119,6 @@ def get_lone_ext_file_path_in_dir(dir_path, ext):
         raise Exception(f"Error: There is more than 1 file with `{ext=}` in dir: {dir_path}, {file_path_l=}")
 
 
-
 def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", return_val = "mp4_and_sub_path"):
     Path(out_parent_dir_path).mkdir(parents=True, exist_ok=True)
 
@@ -141,7 +140,6 @@ def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path
 
         out_mp4_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".mp4")
         print(f"{out_mp4_path=}")
-        # out_ttml_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".ttml")
         out_ttml_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".en.ttml")
         print(f"{out_ttml_path=}")
         return out_mp4_path, out_ttml_path
@@ -166,12 +164,8 @@ def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, r
     # Combine mp4 and srt to make final mkv
     out_mkv_path = mp4_path.replace(".mp4", ".mkv")
     combine_mp4_and_sub_into_mkv(mp4_path, srt_sub_path, out_mkv_path)
-    # print(f"{out_mkv_path=}")
-    # print(f"{mp4_path=}")
-    # print(f"{srt_sub_path=}")
-    # print(f"{ttml_path=}")
 
-    # # Delete old files
+    # Delete old files
     fsu.delete_if_exists(mp4_path)
     fsu.delete_if_exists(ttml_path)
     fsu.delete_if_exists(srt_sub_path)
@@ -207,15 +201,15 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         # LATER should check if yt vid has actual subtitles before just downloading auto-subs
         if sub_style == "separate_file__mp4_ttml":
             dl_dir_path = os.path.join(playlist_dir_path, path_safe_video_title)
-            # dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(video.watch_url, dl_dir_path)
-            out_template = os.path.join(playlist_dir_path, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
+            dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(video.watch_url, dl_dir_path)
+            # out_template = os.path.join(playlist_dir_path, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
 
-            if replace_spaces_with != None:
-                out_template = out_template.replace(" ", replace_spaces_with)
+            # if replace_spaces_with != None:
+            #     out_template = out_template.replace(" ", replace_spaces_with)
 
-            cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {video.watch_url}'
-            print(f"Running cmd: {cmd}...")
-            subprocess.call(cmd, shell = True)
+            # cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {video.watch_url}'
+            # print(f"Running cmd: {cmd}...")
+            # subprocess.call(cmd, shell = True)
 
         elif sub_style == "embed_subs_as_mp4":
             out_template = os.path.join(playlist_dir_path, path_safe_video_title) + ".%(ext)s"
@@ -383,7 +377,7 @@ def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, 
     # For each vid dir, convert re-timed .ttml to srt, then combine the .srt and .mp4 to make a .mkv with embedded subs
     make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path = playlist_dl_dir_path,
                                                                              out_dir_path = out_dir_path)
-                                                                             
+
     # Delete original playlist download
     fsu.delete_if_exists(playlist_dl_dir_path)
 
