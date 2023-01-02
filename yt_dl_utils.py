@@ -42,7 +42,7 @@ def combine_mp4_and_sub_into_mkv(in_mp4_path, in_sub_path, out_mkv_path):
 def get_lone_ext_file_path_in_dir(dir_path, ext):
     """ Only works if there is exactly 1 file of given ext in dir non-recurs"""
     file_path_l = list(Path(dir_path).glob(f"*{ext}"))
-    
+
     if len(file_path_l) == 0:
         raise Exception(f"Error: There are 0 files with ext `{ext}` in dir: {dir_path}")
     elif len(file_path_l) == 1:
@@ -98,7 +98,7 @@ def _fix_ttml_sub_times(in_ttml_path):
         next_line_start_str, next_line_end_str = _get_begin_and_end_time_strs_from_line(next_line)
         print(f"....{next_line_start_str=}")
         print(f"....{next_line_end_str=}")
-   
+
         if next_line_start_str < cur_line_end_str:
             # replace current line's end time with next line's start time
             pre_end_split_str = cur_line.split(' end="')[0] + ' end="'
@@ -176,7 +176,7 @@ def dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url, out_parent_d
     if re_time_subs:
         _fix_ttml_sub_times(ttml_path)
 
-    # Convert sub to srt 
+    # Convert sub to srt
     srt_sub_path = mp4_path.replace(".mp4", ".srt")
     convert_subs(ttml_path, srt_sub_path)
 
@@ -281,8 +281,8 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         else:
             raise Exception(f"ERROR: Invalid {sub_style=}")
 
-    return 
-    
+    return
+
 
 def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, out_dir_path):
     """ Best for downloading YT playlist with auto-subs to be manually edited without losing subs """
