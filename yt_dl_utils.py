@@ -141,33 +141,24 @@ def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path
 
         out_mp4_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".mp4")
         print(f"{out_mp4_path=}")
-        out_ttml_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".ttml")
+        # out_ttml_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".ttml")
+        out_ttml_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".en.ttml")
         print(f"{out_ttml_path=}")
         return out_mp4_path, out_ttml_path
 
 
 
 def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", re_time_subs = True):
-
     # dl with separate mp4 and srt sub file
     mp4_path, ttml_path = dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with)
-    # mp4_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".mp4")
-    # ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".ttml")
-
-    # print(f"{mp4_path=}")
-    # print(f"{sub_path=}")
 
     # re-time subs if needed
     if re_time_subs:
         _fix_ttml_sub_times(ttml_path)
 
-    # LATER not 100% sure need this
     # Convert sub to srt 
     srt_sub_path = mp4_path.replace(".mp4", ".srt")
-    # print("3333333333333333333333333333333")
-    # print(f"{ttml_path=}")
-    # print(f"{srt_sub_path=}")
-    # exit()
+
     convert_subs(ttml_path, srt_sub_path)
 
     # Combine mp4 and srt to make final mkv
@@ -190,6 +181,7 @@ def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, r
 # Could improve with threading
 # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
 def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", sub_style = "no_subs", vid_ext = "mp4"):
+    """ fixing sub timing is outside the scope of this func """
     # https://www.codegrepper.com/tpc/python+download+youtube+playlist
     p = Playlist(playlist_url)
 
@@ -205,7 +197,7 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
     for video in p.videos:
         # Replace any special chars that can't be in path with '_'
         # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
-        path_safe_video_title = _get_path_safe_str(video.title)
+        path_safe_video_title = _get_path_safe_str(video.title).replace(" ", replace_spaces_with)
 
         # print(video.caption_tracks())
         # for caption_track in video.caption_tracks():
@@ -213,26 +205,26 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         # print(video.initial_data)
         # print(video.initial_data)
 
-        # If want to end up with mkv w/embedded subs, better to just dl as separate files first, then convert, in case
-        # there is a problem with the conversion b/c downloading takes much longer
-        embed_subs_as_mkv = False
-        if sub_style == "embed_subs_as_mkv":
-            embed_subs_as_mkv = True
-            sub_style = "separate_file__mp4_ttml"
+        # # If want to end up with mkv w/embedded subs, better to just dl as separate files first, then convert, in case
+        # # there is a problem with the conversion b/c downloading takes much longer
+        # embed_subs_as_mkv = False
+        # if sub_style == "embed_subs_as_mkv":
+        #     embed_subs_as_mkv = True
+        #     sub_style = "separate_file__mp4_ttml"
 
         # Very lazy way of doing things, should probably use pytube for everything
         # LATER should check if yt vid has actual subtitles before just downloading auto-subs
         if sub_style == "separate_file__mp4_ttml":
             dl_dir_path = os.path.join(playlist_dir_path, path_safe_video_title)
-            dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(video.watch_url, dl_dir_path)
-            # out_template = os.path.join(playlist_dir_path, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
+            # dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(video.watch_url, dl_dir_path)
+            out_template = os.path.join(playlist_dir_path, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
 
-            # if replace_spaces_with != None:
-            #     out_template = out_template.replace(" ", replace_spaces_with)
+            if replace_spaces_with != None:
+                out_template = out_template.replace(" ", replace_spaces_with)
 
-            # cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {video.watch_url}'
-            # print(f"Running cmd: {cmd}...")
-            # subprocess.call(cmd, shell = True)
+            cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {video.watch_url}'
+            print(f"Running cmd: {cmd}...")
+            subprocess.call(cmd, shell = True)
 
         elif sub_style == "embed_subs_as_mp4":
             out_template = os.path.join(playlist_dir_path, path_safe_video_title) + ".%(ext)s"
@@ -261,15 +253,20 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             raise Exception(f"ERROR: Invalid {sub_style=}")
 
 
-        if embed_subs_as_mkv:
-            make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(playlist_dir_path, playlist_dir_path)
+        # if embed_subs_as_mkv:
+        #     print("about to convert to mkv")
+        #     # make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(playlist_dir_path, playlist_dir_path)
 
-            # Delete all dirs
-            separate_vid_sub_yt_dl_dir_path_l = fsu.get_dir_content_l(playlist_dir_path, "dir")
-            fsu.delete_if_exists(separate_vid_sub_yt_dl_dir_path_l)
+        #     # # Delete all dirs
+        #     # separate_vid_sub_yt_dl_dir_path_l = fsu.get_dir_content_l(playlist_dir_path, "dir")
+        #     # fsu.delete_if_exists(separate_vid_sub_yt_dl_dir_path_l)
+    return playlist_dir_path
 
 
 def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path, out_dir_path):
+    if not Path(in_pl_dir_path).is_dir():
+        raise Exception(f"Error: Input dir does not exit: {in_pl_dir_path=}")
+
     fsu.delete_if_exists(out_dir_path)
     Path(out_dir_path).mkdir(parents=True, exist_ok=True)
 
@@ -278,7 +275,7 @@ def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl
 
     for vid_dl_dir_path in vid_dl_dir_path_l:
         mp4_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, ".mp4")
-        ttml_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, ".ttml")
+        ttml_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, ".en.ttml")
         print(f"{mp4_path=}")
 
         # out_mkv_path & tmp_srt_path
@@ -302,7 +299,7 @@ def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl
 
         # Delete srt
         fsu.delete_if_exists(tmp_srt_path)
-    exit()
+    # exit()
 
 
 
@@ -369,7 +366,7 @@ def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
 
     for vid_sub_dir_path in vid_sub_dir_path_l:
 
-        sub_file_path_l = list(Path(vid_sub_dir_path).glob("*.ttml"))
+        sub_file_path_l = list(Path(vid_sub_dir_path).glob("*.en.ttml"))
 
         if len(sub_file_path_l) == 0:
             print("no subs in ", vid_sub_dir_path)
@@ -381,20 +378,46 @@ def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
 
         print(f"Fixing timing for {sub_file_path=}")
         _fix_ttml_sub_times(sub_file_path)
+        
+
+def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, out_dir_path):
+    """ Best for downloading YT playlist with auto-subs to be manually edited without losing subs """
+    # Init out_dir_path
+    # fsu.delete_if_exists(out_dir_path)
+    Path(out_dir_path).mkdir(parents=True, exist_ok=True)
+
+    # Download playlist as separate .mp4 and .ttml files in their own dirs by vid in separate playlist dir
+    tmp_pl_dl_parent_dir_path = Path(out_dir_path).parent
+    playlist_dl_dir_path = dl_all_videos_in_playlist(playlist_url, tmp_pl_dl_parent_dir_path, replace_spaces_with = "_", sub_style = "separate_file__mp4_ttml")
+
+    # Correct .ttml sub times for all downloaded vids
+    re_time_subs_for_separate_sub_yt_playlist_dl_dir(playlist_dl_dir_path)
+
+    # For each vid dir, convert re-timed .ttml to srt, then combine the .srt and .mp4 to make a .mkv with embedded subs
+    make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path = playlist_dl_dir_path,
+                                                                             out_dir_path = out_dir_path)
+
+    # Delete original playlist download
+    fsu.delete_if_exists(playlist_dl_dir_path)
+
 
 
 if __name__ == "__main__":
 
     # re_time_subs_for_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed")
 
-    # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
-    # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-    # # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
+    # # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
+    # # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+    # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
     #                             #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_embed_auto_subs__just_files",
-    #                             #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/test_sep_playlist2",
-    #                              out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_mkv_embedded_subs_re_timed",
+    #                              out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/test_sep_playlist3",
+    #                             #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_mkv_embedded_subs_re_timed",
     #                               replace_spaces_with = "_",
     #                               sub_style = "embed_subs_as_mkv")
+
+
+    dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
+     out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/all41test")
 
     # dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
     #  out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV2_mkv_yt_dl_test",
@@ -402,8 +425,8 @@ if __name__ == "__main__":
 
     # convert_subs("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.en.ttml",
     # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.srt")
-    make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed",
-    "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/embed_pl_convert_test_dir")
+    # make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed",
+    # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/embed_pl_convert_test_dir")
 
     print("done")
     # p = input("Enter th url of the playlist")
