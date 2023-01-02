@@ -7,11 +7,8 @@ import youtube_dl
 from pytube import Playlist
 from pytube import YouTube
 
-
 from sms.logger import txt_logger
 from sms.file_system_utils import file_system_utils as fsu
-
-
 
 
 ####################################################################################################
@@ -77,29 +74,25 @@ def dl_audio_only(yt_url, out_path = None):
 ####################################################################################################
 # Download Individual Videos
 ####################################################################################################
-def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", return_val = "mp4_and_sub_path"):
+def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_"):
     Path(out_parent_dir_path).mkdir(parents=True, exist_ok=True)
 
     vid = YouTube(vid_url)
     path_safe_vid_title = _get_path_safe_str(vid.title, replace_spaces_with)
-
     out_template = os.path.join(out_parent_dir_path, path_safe_vid_title) + ".%(ext)s"
-
-    # if replace_spaces_with != None:
-    #     out_template = out_template.replace(" ", replace_spaces_with)
 
     # DL with separate mp4 and srt sub file
     cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
     print(f"Running cmd: {cmd}...")
     subprocess.call(cmd, shell = True)
 
-    if return_val == "mp4_and_sub_path":
-        # corrected_out_parent_dir_path = out_parent_dir_path.replace(" ", replace_spaces_with)
-        out_mp4_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".mp4")
-        out_ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".en.ttml")
-        return out_mp4_path, out_ttml_path
+    # Return path to downloaded files
+    out_mp4_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".mp4")
+    out_ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".en.ttml")
+    return out_mp4_path, out_ttml_path
 
-def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", re_time_subs = True):
+
+def dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", re_time_subs = True):
     # dl with separate mp4 and srt sub file
     mp4_path, ttml_path = dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with)
 
@@ -109,7 +102,6 @@ def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, r
 
     # Convert sub to srt 
     srt_sub_path = mp4_path.replace(".mp4", ".srt")
-
     convert_subs(ttml_path, srt_sub_path)
 
     # Combine mp4 and srt to make final mkv
@@ -125,7 +117,7 @@ def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, r
 # Could improve with threading
 # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
 def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", sub_style = "no_subs", vid_ext = "mp4"):
-    """ fixing sub timing is outside the scope of this func """
+    """ Fixing sub timing is outside the scope of this func """
     # https://www.codegrepper.com/tpc/python+download+youtube+playlist
     p = Playlist(playlist_url)
 
@@ -133,7 +125,6 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 
     path_safe_playlist_title = _get_path_safe_str(p.title, replace_spaces_with)
 
-    # playlist_dir_path = os.path.join(out_dir_path, path_safe_playlist_title).replace(" ", replace_spaces_with)
     playlist_dir_path = os.path.join(out_dir_path, path_safe_playlist_title)
     fsu.delete_if_exists(playlist_dir_path)
     Path(playlist_dir_path).mkdir(parents=True, exist_ok=True)
@@ -142,29 +133,15 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         # Replace any special chars that can't be in path with '_'
         # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
         path_safe_video_title = _get_path_safe_str(video.title, replace_spaces_with)
-        # path_safe_video_title = _get_path_safe_str(video.title).replace(" ", replace_spaces_with)
-
-        # print(video.caption_tracks())
-        # for caption_track in video.caption_tracks():
-        #     print(f"{caption_track=}")
-        # print(video.initial_data)
-        # print(video.initial_data)
 
         # Very lazy way of doing things, should probably use pytube for everything
         # LATER should check if yt vid has actual subtitles before just downloading auto-subs
+        # LATER Can do this with stuff like video.caption_track, .initial data, etc.
         if sub_style == "separate_file__mp4_ttml":
             dl_dir_path = os.path.join(playlist_dir_path, path_safe_video_title)
             print(f"{dl_dir_path=}")
             dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(video.watch_url, dl_dir_path)
-            # exit()
-            # out_template = os.path.join(playlist_dir_path, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
 
-            # if replace_spaces_with != None:
-            #     out_template = out_template.replace(" ", replace_spaces_with)
-
-            # cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {video.watch_url}'
-            # print(f"Running cmd: {cmd}...")
-            # subprocess.call(cmd, shell = True)
 
         elif sub_style == "embed_subs_as_mp4":
             out_template = os.path.join(playlist_dir_path, path_safe_video_title) + ".%(ext)s"
@@ -300,7 +277,6 @@ def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
     vid_sub_dir_path_l = fsu.get_dir_content_l(in_dir_path, "dir")
 
     for vid_sub_dir_path in vid_sub_dir_path_l:
-
         sub_file_path_l = list(Path(vid_sub_dir_path).glob("*.en.ttml"))
 
         if len(sub_file_path_l) == 0:
@@ -359,7 +335,7 @@ if __name__ == "__main__":
     dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
      out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/all41test")
 
-    # dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
+    # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
     #  out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV2_mkv_yt_dl_test",
     #   replace_spaces_with = "_")
 
