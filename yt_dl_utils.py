@@ -308,19 +308,7 @@ def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, 
 
 
 if __name__ == "__main__":
-
-    # re_time_subs_for_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed")
-
     # # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
-    # # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-    # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
-    #                             #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_embed_auto_subs__just_files",
-    #                              out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/test_sep_playlist3",
-    #                             #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_mkv_embedded_subs_re_timed",
-    #                               replace_spaces_with = "_",
-    #                               sub_style = "embed_subs_as_mkv")
-
-
     dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
      out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/all41test")
 
@@ -334,9 +322,3 @@ if __name__ == "__main__":
     # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/embed_pl_convert_test_dir")
 
     print("done")
-
-
-
-
-
-
