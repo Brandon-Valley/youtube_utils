@@ -142,12 +142,8 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             print(f"{dl_dir_path=}")
             dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(video.watch_url, dl_dir_path)
 
-
         elif sub_style == "embed_subs_as_mp4":
             out_template = os.path.join(playlist_dir_path, path_safe_video_title) + ".%(ext)s"
-
-            # if replace_spaces_with != None:
-            #     out_template = out_template.replace(" ", replace_spaces_with)
 
             cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
             print(f"Running cmd: {cmd}...")
@@ -155,12 +151,6 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 
         elif sub_style == "no_subs":
             out_vid_path = os.path.join(playlist_dir_path, path_safe_video_title + f".{vid_ext}")
-
-            # if replace_spaces_with != None:
-            #     out_vid_path = out_vid_path.replace(" ", replace_spaces_with)
-
-            # # Create parent dir and nested parents if needed
-            # Path(out_vid_path).parent.mkdir(parents=True, exist_ok=True)
 
             print(f"Downloading {video.title} to {out_vid_path}...")
             st = video.streams.get_highest_resolution()
@@ -175,7 +165,6 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 # Work from playlist_dl_dir
 ####################################################################################################
 def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path, out_dir_path):
-    print(f"{in_pl_dir_path=}")
     if not Path(in_pl_dir_path).is_dir():
         raise Exception(f"Error: Input dir does not exit: {in_pl_dir_path=}")
 
@@ -212,7 +201,6 @@ def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl
 
         # Delete srt
         fsu.delete_if_exists(tmp_srt_path)
-
 
 
 ####################################################################################################
@@ -345,30 +333,6 @@ if __name__ == "__main__":
     # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/embed_pl_convert_test_dir")
 
     print("done")
-    # p = input("Enter th url of the playlist")
-
-    # video.streams.first().download()
-
-
-#     vids_dir_path = "C:\\Users\\mt204e\\Documents\\projects\\jira_best_practices\\videos\\jira_reports_tutorial_vids"
-
-# #     save_path = "C:\\Users\\mt204e\\Documents\\projects\\jira_best_practices\\videos\\Jira_Reports_Tutorial__Burndown_Charts.mp4"
-# #
-# #     # dl_audio_only('https://www.youtube.com/watch?v=hWTFG3J1CP8', 'test2.wav')
-# #     download_youtube_vid("https://www.youtube.com/watch?v=hH-q7rimHPY", vids_dir_path + '\\Epic_Report.mp4')
-
-#     vid_url_dest_path_d = {
-#                             'https://www.youtube.com/watch?v=gTOKqz7oW3g' : vids_dir_path + '\\Sprint_Report.mp4',
-# #                             'https://www.youtube.com/watch?v=hH-q7rimHPY&list=PLaD4FvsFdarTnxd7YhUNbQceNEV7I_1Wo&index=3' : vids_dir_path + '\\Epic_Report.mp4',
-#                             'https://www.youtube.com/watch?v=-h7YlVBnyKM' : vids_dir_path + '\\Velocity_Chart.mp4',
-#                             'https://www.youtube.com/watch?v=Z8hM8tr4OAM' : vids_dir_path + '\\Control_Chart.mp4',
-#                             'https://www.youtube.com/watch?v=CtVkZDy0ve8' : vids_dir_path + '\\Release_Burndown.mp4',
-#                             'https://www.youtube.com/watch?v=U0xht5M_49A' : vids_dir_path + '\\Version_Report.mp4',
-#                             'https://www.youtube.com/watch?v=9yYOaN68T-4' : vids_dir_path + '\\Average_Age_Report.mp4',
-
-#                            }
-
-#     download_youtube_vids_from_vid_url_dest_path_d(vid_url_dest_path_d)
 
 
 
