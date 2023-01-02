@@ -234,7 +234,7 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             # print(f"Running cmd: {cmd}...")
             # subprocess.call(cmd, shell = True)
 
-        elif sub_style == "embed_subs":
+        elif sub_style == "embed_subs_as_mp4":
             out_template = os.path.join(playlist_dir_path, path_safe_video_title) + ".%(ext)s"
 
             if replace_spaces_with != None:
@@ -243,10 +243,6 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
             print(f"Running cmd: {cmd}...")
             subprocess.call(cmd, shell = True)
-
-        # elif sub_style == "embed_subs_as_mkv":
-            
-        #     dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(video.watch_url, playlist_dir_path)
 
         elif sub_style == "no_subs":
             out_vid_path = os.path.join(playlist_dir_path, path_safe_video_title + f".{vid_ext}")
@@ -266,63 +262,47 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 
 
         if embed_subs_as_mkv:
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(playlist_dir_path, playlist_dir_path)
+
+            # Delete all dirs
+            separate_vid_sub_yt_dl_dir_path_l = fsu.get_dir_content_l(playlist_dir_path, "dir")
+            fsu.delete_if_exists(separate_vid_sub_yt_dl_dir_path_l)
 
 
 def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path, out_dir_path):
+    fsu.delete_if_exists(out_dir_path)
+    Path(out_dir_path).mkdir(parents=True, exist_ok=True)
+
     vid_dl_dir_path_l = fsu.get_dir_content_l(in_pl_dir_path, "dir")
+    print(f"{vid_dl_dir_path_l=}")
 
     for vid_dl_dir_path in vid_dl_dir_path_l:
-
-        # safe_vid_title = Path(vid_dl_dir_path).
-        # print(f"{safe_vid_title=}")
-        # out_mkv_path = 
-
         mp4_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, ".mp4")
         ttml_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, ".ttml")
         print(f"{mp4_path=}")
 
-        # out_mkv_path
+        # out_mkv_path & tmp_srt_path
         safe_vid_title = Path(vid_dl_dir_path).name
         print(f"{safe_vid_title=}")
+        out_mkv_path = os.path.join(out_dir_path, safe_vid_title + ".mkv")
+        tmp_srt_path = os.path.join(out_dir_path, safe_vid_title + ".srt")
+        print(f"{out_mkv_path=}")
+        fsu.delete_if_exists(out_mkv_path)
+        fsu.delete_if_exists(tmp_srt_path)
 
+        # make srt from ttml
+        convert_subs(ttml_path, tmp_srt_path)
 
-    #     make_mkv_vid_w_embedded_subs_from_vid_and_sub_files()
+        # make mkv
+        combine_mp4_and_sub_into_mkv(mp4_path, tmp_srt_path, out_mkv_path)
 
+        # Check to make sure mkv created
+        if not out_mkv_path.is_file():
+            raise Exception(f"Error: .mkv file does not exist after it should have been created: {out_mkv_path=}")
 
-    #             mp4_path, ttml_path = dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with)
-    # # mp4_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".mp4")
-    # # ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".ttml")
-
-    # # print(f"{mp4_path=}")
-    # # print(f"{sub_path=}")
-
-    # # re-time subs if needed
-    # if re_time_subs:
-    #     _fix_ttml_sub_times(ttml_path)
-
-    # # LATER not 100% sure need this
-    # # Convert sub to srt 
-    # srt_sub_path = mp4_path.replace(".mp4", ".srt")
-    # # print("3333333333333333333333333333333")
-    # # print(f"{ttml_path=}")
-    # # print(f"{srt_sub_path=}")
-    # # exit()
-    # convert_subs(ttml_path, srt_sub_path)
-
-    # # Combine mp4 and srt to make final mkv
-    # out_mkv_path = mp4_path.replace(".mp4", ".mkv")
-    # combine_mp4_and_sub_into_mkv(mp4_path, srt_sub_path, out_mkv_path)
-    # # print(f"{out_mkv_path=}")
-    # # print(f"{mp4_path=}")
-    # # print(f"{srt_sub_path=}")
-    # # print(f"{ttml_path=}")
-
-    # # # Delete old files
-    # fsu.delete_if_exists(mp4_path)
-    # fsu.delete_if_exists(ttml_path)
-    # fsu.delete_if_exists(srt_sub_path)
-
+        # Delete srt
+        fsu.delete_if_exists(tmp_srt_path)
+    exit()
 
 
 
@@ -403,46 +383,7 @@ def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
         _fix_ttml_sub_times(sub_file_path)
 
 
-        
-
-
-
-
 if __name__ == "__main__":
-    # # TEST_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J"
-    # # TEST_OUT_DIR_PATH = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore"
-    # # # dl_all_videos_in_playlist(TEST_PLAYLIST_URL, TEST_OUT_DIR_PATH)
-    # # dl_all_videos_in_playlist("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-    # #                          "C:\\Users\\Brandon\\Documents\\Personal_Projects\\tik_tb_vid_big_data\\ignore\\tbs_pl_dl")
-    # # out_vid_path = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore\\sub"
-    # # cmd = "youtube-dl --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=l0U7SxXHkPY"
-    # # cmd = "youtube-dl --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
-    # # cmd = "youtube-dl --write-auto-sub --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
-    # out_dir_path = "C:\\Users\\Brandon\\Documents\\Personal_Projects\\youtube_utils\\ignore\\herb_test"
-    # Path(out_dir_path).mkdir(parents=True, exist_ok=True)
-    # # cmd = f"youtube-dl --write-auto-sub --sub-format srt --write-description --write-info-json --write-annotations --write-sub --write-thumbnail https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
-    # # cmd = f"youtube-dl --write-auto-sub https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
-    # # cmd = f"youtube-dl --write-auto-sub --write-sub --sub-lang en,id --sub-format srt/sub/ssa/vtt/ass/best --convert-subs srt https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
-    # # cmd = f"youtube-dl --write-auto-sub --write-sub --sub-lang en --sub-format srt/sub/ssa/vtt/ass/best --embed-subs https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
-    # # cmd = f"youtube-dl --write-auto-sub https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
-    # # cmd = f"youtube-dl --write-auto-sub https://www.youtube.com/watch?v=HVzdSPhcMUo"
-    # # cmd = f"yt-dlp --write-auto-subs --sub-lang "en.*" --sub-format srt --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo"
-    # # cmd = f"yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format srt --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo"
-    # # cmd = f"yt-dlp -f bestvideo[ext=mp4] --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo" # WORKS!!!!!!!!!!
-    # # cmd = f'yt-dlp -f bestvideo[ext=mp4] --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "%(playlisttitle)s/%(title)s.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
-    # cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "test_dir/title.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
-    # # cmd = f"yt-dlp --write-auto-subs --sub-lang "en.*" --no-playlist https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
-    # print(f"{cmd=}")
-    # subprocess.call(cmd, shell=True)
-
-    # # playlist_url = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J"
-    # playlist_url = "https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ"
-    # out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore"
-    # dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", separate_sub_file = True)
-
-
-    # ttml_test_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/vl_178__Family_Guy__Winning_Ticket_(Clip)___TBS__PERFECT_SUB_PLACEMENT_EXAMPLE/Family_Guy__Winning_Ticket_(Clip)___TBS_tsbfd_40.ttml"
-    # _fix_ttml_sub_times(ttml_test_path)
 
     # re_time_subs_for_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed")
 
