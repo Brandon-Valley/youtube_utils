@@ -277,11 +277,10 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             print(f"Downloading {video.title} to {out_vid_path}...")
             st = video.streams.get_highest_resolution()
             st.download(filename=out_vid_path)
-
         else:
             raise Exception(f"ERROR: Invalid {sub_style=}")
 
-    return
+    return playlist_dir_path
 
 
 def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, out_dir_path):
