@@ -114,7 +114,7 @@ def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
     vid_sub_dir_path_l = fsu.get_dir_content_l(in_dir_path, "dir")
 
     for vid_sub_dir_path in vid_sub_dir_path_l:
-        sub_file_path_l = list(Path(vid_sub_dir_path).glob("*.en.ttml"))
+        sub_file_path_l = list(Path(vid_sub_dir_path).glob("*en.ttml"))
 
         if len(sub_file_path_l) == 0:
             print("no subs in ", vid_sub_dir_path)
@@ -164,7 +164,7 @@ def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path
 
     # Return path to downloaded files
     out_mp4_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".mp4")
-    out_ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".en.ttml")
+    out_ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, "en.ttml")
     return out_mp4_path, out_ttml_path
 
 
@@ -206,7 +206,7 @@ def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl
 
     for vid_dl_dir_path in vid_dl_dir_path_l:
         mp4_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, ".mp4")
-        ttml_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, ".en.ttml")
+        ttml_path = get_lone_ext_file_path_in_dir(vid_dl_dir_path, "en.ttml")
         print(f"{mp4_path=}")
 
         # out_mkv_path & tmp_srt_path
@@ -309,8 +309,9 @@ def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, 
 
 if __name__ == "__main__":
     # # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
-    dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
-     out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/all41test")
+    # dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
+    dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+     out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_mkv_e_subs_re_timed")
 
     # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
     #  out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV2_mkv_yt_dl_test",
