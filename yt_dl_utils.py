@@ -22,72 +22,16 @@ from pytube import YouTube
 # from SECRETS import youtube_api_key
 
 
-# downloads only audio in mp3 from youtube url, if no out_path is given, will download next to this file with vid title
-def dl_audio_only(yt_url, out_path = None):
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-                                'key'             : 'FFmpegExtractAudio',
-                                'preferredcodec'  : 'wav',
-                                'preferredquality': '192',
-                          }],
-    }
-    if out_path != None:
-        ydl_opts['outtmpl'] = out_path
 
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([yt_url])
-
-
-# downloads yt vid at highest resolution
-# currently will not overwrite existing file, or even throw an error if there is one
-def download_youtube_vid(videourl, vid_save_path):
-#     print(' in dl utils downloading yt vid to : ', path + '/' + save_title + '.mp4')#`````````````````````````````````````````````````
-    cmd = 'youtube-dl -f best "' + videourl + '" -o ' + vid_save_path
-#     print('cmd: ', cmd)#````````````````````````````````````````````````````````````````````````````````````
-    subprocess.call(cmd, shell=True)
-
-#     yt = YouTube(videourl)
-#     yt = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-#     if not os.path.exists(path):
-#         os.makedirs(path)
-#     yt.download(path)
-#
-#     print('in dl_utils, finding newest file_path...')#`````````````````````````````````````````````````````````````````````````````
-#     # rename saved video
-#     newest_file_path = file_system_utils.get_newest_file_path(path)
-#     print('in dl_utils, renameing...')#`````````````````````````````````````````````````````````````````````````````
-#     os.rename(newest_file_path, path + '//' + save_title + '.mp4')
-# downloadYouTube('https://www.youtube.com/watch?v=zNyYDHCg06c', './videos/FindingNemo1')
-
-
-def download_youtube_vids_from_vid_url_dest_path_d(vid_url_dest_path_d):
-    for vid_url, dest_path in vid_url_dest_path_d.items():
-        download_youtube_vid(vid_url, dest_path)
-
-def _get_path_safe_str(in_str):
+####################################################################################################
+# Should probably be in separate utility file/submodule
+####################################################################################################
+def _get_path_safe_str(in_str, replace_spaces_with = None):
     """ # Replace any special chars that can't be in path with '_' """
-    return in_str.translate({ord(c): "_" for c in ":*<>?|`"})
+    path_safe_str = in_str.translate({ord(c): "_" for c in ":*<>?|`"})
 
-# def dl_vid_w_seperate_sub_file(vid_url, out_dir_path, replace_spaces_with = "_"):
-#     v = 
-#     out_template = os.path.join(out_dir_path)
-#     cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "test_dir/title.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
-
-
-# def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_"):
-#     vid = YouTube(vid_url)
-#     path_safe_vid_title = _get_path_safe_str(vid.title)
-
-#     out_template = os.path.join(out_parent_dir_path, path_safe_vid_title) + ".%(ext)s"
-
-#     if replace_spaces_with != None:
-#         out_template = out_template.replace(" ", replace_spaces_with)
-
-#     # dl with separate mp4 and srt sub file
-#     cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --no-playlist -o "{out_template}" {vid.watch_url}'
-#     print(f"Running cmd: {cmd}...")
-#     subprocess.call(cmd, shell = True)
+    if replace_spaces_with != None:
+        path_safe_str = path_safe_str.replace(" ", replace_spaces_with)
 
 # LATER REALLY SHOULD ADD THIS TO VID_EDIT_UTILS
 def convert_subs(in_sub_path, out_sub_path):
@@ -95,12 +39,10 @@ def convert_subs(in_sub_path, out_sub_path):
     print(f"Running {cmd}...")
 
     subprocess.call(cmd, shell=True)
-    # exit()
 
 # LATER REALLY SHOULD ADD THIS TO VID_EDIT_UTILS
 def combine_mp4_and_sub_into_mkv(in_mp4_path, in_sub_path, out_mkv_path):
-    """ sub may need to be .srt """
-    # cmd = f'ffmpeg -i {in_mp4_path} -i {in_sub_path} -c copy -c:s mov_text {out_mkv_path}'
+    """ Sub MAY need to be .srt """
     cmd = f'ffmpeg -i {in_mp4_path} -i {in_sub_path} -c copy -c:s copy {out_mkv_path}'
     print(f"Running {cmd}...")
     subprocess.call(cmd, shell=True)
@@ -119,35 +61,51 @@ def get_lone_ext_file_path_in_dir(dir_path, ext):
         raise Exception(f"Error: There is more than 1 file with `{ext=}` in dir: {dir_path}, {file_path_l=}")
 
 
-def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", return_val = "mp4_and_sub_path"):
-    Path(out_parent_dir_path).mkdir(parents=True, exist_ok=True)
+####################################################################################################
+# Audio Only
+####################################################################################################
+# downloads only audio in mp3 from youtube url, if no out_path is given, will download next to this file with vid title
+def dl_audio_only(yt_url, out_path = None):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+                                'key'             : 'FFmpegExtractAudio',
+                                'preferredcodec'  : 'wav',
+                                'preferredquality': '192',
+                          }],
+    }
+    if out_path != None:
+        ydl_opts['outtmpl'] = out_path
 
-    vid = YouTube(vid_url)
-    path_safe_vid_title = _get_path_safe_str(vid.title)
-
-    out_template = os.path.join(out_parent_dir_path, path_safe_vid_title) + ".%(ext)s"
-
-    if replace_spaces_with != None:
-        out_template = out_template.replace(" ", replace_spaces_with)
-
-    # dl with separate mp4 and srt sub file
-    cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
-    print(f"Running cmd: {cmd}...")
-    subprocess.call(cmd, shell = True)
-
-    if return_val == "mp4_and_sub_path":
-        corrected_out_parent_dir_path = out_parent_dir_path.replace(" ", replace_spaces_with)
-
-        out_mp4_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".mp4")
-        print(f"{out_mp4_path=}")
-        out_ttml_path = get_lone_ext_file_path_in_dir(corrected_out_parent_dir_path, ".en.ttml")
-        print(f"{out_ttml_path=}")
-        return out_mp4_path, out_ttml_path
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([yt_url])
 
 
 ####################################################################################################
 # Download Individual Videos
 ####################################################################################################
+def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", return_val = "mp4_and_sub_path"):
+    Path(out_parent_dir_path).mkdir(parents=True, exist_ok=True)
+
+    vid = YouTube(vid_url)
+    path_safe_vid_title = _get_path_safe_str(vid.title, replace_spaces_with)
+
+    out_template = os.path.join(out_parent_dir_path, path_safe_vid_title) + ".%(ext)s"
+
+    # if replace_spaces_with != None:
+    #     out_template = out_template.replace(" ", replace_spaces_with)
+
+    # DL with separate mp4 and srt sub file
+    cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
+    print(f"Running cmd: {cmd}...")
+    subprocess.call(cmd, shell = True)
+
+    if return_val == "mp4_and_sub_path":
+        # corrected_out_parent_dir_path = out_parent_dir_path.replace(" ", replace_spaces_with)
+        out_mp4_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".mp4")
+        out_ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".en.ttml")
+        return out_mp4_path, out_ttml_path
+
 def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", re_time_subs = True):
     # dl with separate mp4 and srt sub file
     mp4_path, ttml_path = dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with)
@@ -180,16 +138,18 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 
     print(f'Downloading all videos in playlist: {p.title}...')
 
-    path_safe_playlist_title = _get_path_safe_str(p.title)
+    path_safe_playlist_title = _get_path_safe_str(p.title, replace_spaces_with)
 
-    playlist_dir_path = os.path.join(out_dir_path, path_safe_playlist_title).replace(" ", replace_spaces_with)
+    # playlist_dir_path = os.path.join(out_dir_path, path_safe_playlist_title).replace(" ", replace_spaces_with)
+    playlist_dir_path = os.path.join(out_dir_path, path_safe_playlist_title)
     fsu.delete_if_exists(playlist_dir_path)
     Path(playlist_dir_path).mkdir(parents=True, exist_ok=True)
 
     for video in p.videos:
         # Replace any special chars that can't be in path with '_'
         # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
-        path_safe_video_title = _get_path_safe_str(video.title).replace(" ", replace_spaces_with)
+        path_safe_video_title = _get_path_safe_str(video.title)
+        # path_safe_video_title = _get_path_safe_str(video.title).replace(" ", replace_spaces_with)
 
         # print(video.caption_tracks())
         # for caption_track in video.caption_tracks():
@@ -214,8 +174,8 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         elif sub_style == "embed_subs_as_mp4":
             out_template = os.path.join(playlist_dir_path, path_safe_video_title) + ".%(ext)s"
 
-            if replace_spaces_with != None:
-                out_template = out_template.replace(" ", replace_spaces_with)
+            # if replace_spaces_with != None:
+            #     out_template = out_template.replace(" ", replace_spaces_with)
 
             cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
             print(f"Running cmd: {cmd}...")
@@ -224,8 +184,8 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         elif sub_style == "no_subs":
             out_vid_path = os.path.join(playlist_dir_path, path_safe_video_title + f".{vid_ext}")
 
-            if replace_spaces_with != None:
-                out_vid_path = out_vid_path.replace(" ", replace_spaces_with)
+            # if replace_spaces_with != None:
+            #     out_vid_path = out_vid_path.replace(" ", replace_spaces_with)
 
             # Create parent dir and nested parents if needed
             Path(out_vid_path).parent.mkdir(parents=True, exist_ok=True)
