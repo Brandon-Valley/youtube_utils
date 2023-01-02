@@ -150,6 +150,7 @@ def dl_audio_only(yt_url, out_path = None):
 ####################################################################################################
 # Download Individual Videos
 ####################################################################################################
+# LATER should add option to get real subs if exist
 def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_"):
     Path(out_parent_dir_path).mkdir(parents=True, exist_ok=True)
 
@@ -158,7 +159,8 @@ def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path
     out_template = os.path.join(out_parent_dir_path, path_safe_vid_title) + ".%(ext)s"
 
     # DL with separate mp4 and srt sub file
-    cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
+    # cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
+    cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang ".en.*" --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
     print(f"Running cmd: {cmd}...")
     subprocess.call(cmd, shell = True)
 
