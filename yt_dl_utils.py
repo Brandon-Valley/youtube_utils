@@ -1,22 +1,16 @@
-from __future__ import unicode_literals
 import os
+import subprocess
 from pathlib import Path
 from pprint import pprint
+
 import youtube_dl
-import subprocess
-
-from sms.logger import txt_logger
-from sms.file_system_utils import file_system_utils as fsu
-#
-
-
 from pytube import Playlist
 from pytube import YouTube
 
-# https://www.youtube.com/channel/UCxfpjrP56c2ADNXK9RQ1zAg
-# https://www.youtube.com/channel/UCB7Fk050iWZ2LBfgi9tro3A/videos
-# https://www.youtube.com/channel/UCjXbR88mPHHcuBLHBGKmrjw
-# https://www.youtube.com/watch?v=YvnPxqZEWVs
+
+from sms.logger import txt_logger
+from sms.file_system_utils import file_system_utils as fsu
+
 
 
 
