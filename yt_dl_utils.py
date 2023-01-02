@@ -8,18 +8,15 @@ import subprocess
 from sms.logger import txt_logger
 from sms.file_system_utils import file_system_utils as fsu
 #
-# https://www.youtube.com/channel/UCxfpjrP56c2ADNXK9RQ1zAg
-# https://www.youtube.com/channel/UCB7Fk050iWZ2LBfgi9tro3A/videos
-# https://www.youtube.com/channel/UCjXbR88mPHHcuBLHBGKmrjw
-# https://www.youtube.com/watch?v=YvnPxqZEWVs
 
 
 from pytube import Playlist
 from pytube import YouTube
 
-
-
-# from SECRETS import youtube_api_key
+# https://www.youtube.com/channel/UCxfpjrP56c2ADNXK9RQ1zAg
+# https://www.youtube.com/channel/UCB7Fk050iWZ2LBfgi9tro3A/videos
+# https://www.youtube.com/channel/UCjXbR88mPHHcuBLHBGKmrjw
+# https://www.youtube.com/watch?v=YvnPxqZEWVs
 
 
 
@@ -32,6 +29,8 @@ def _get_path_safe_str(in_str, replace_spaces_with = None):
 
     if replace_spaces_with != None:
         path_safe_str = path_safe_str.replace(" ", replace_spaces_with)
+
+    return path_safe_str
 
 # LATER REALLY SHOULD ADD THIS TO VID_EDIT_UTILS
 def convert_subs(in_sub_path, out_sub_path):
@@ -203,6 +202,7 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 # Work from playlist_dl_dir
 ####################################################################################################
 def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path, out_dir_path):
+    print(f"{in_pl_dir_path=}")
     if not Path(in_pl_dir_path).is_dir():
         raise Exception(f"Error: Input dir does not exit: {in_pl_dir_path=}")
 
@@ -210,6 +210,7 @@ def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl
     Path(out_dir_path).mkdir(parents=True, exist_ok=True)
 
     vid_dl_dir_path_l = fsu.get_dir_content_l(in_pl_dir_path, "dir")
+    print(f"{in_pl_dir_path=}")
     print(f"{vid_dl_dir_path_l=}")
 
     for vid_dl_dir_path in vid_dl_dir_path_l:
@@ -324,22 +325,24 @@ def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
 def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, out_dir_path):
     """ Best for downloading YT playlist with auto-subs to be manually edited without losing subs """
     # Init out_dir_path
-    # fsu.delete_if_exists(out_dir_path)
+    fsu.delete_if_exists(out_dir_path)
     Path(out_dir_path).mkdir(parents=True, exist_ok=True)
 
     # Download playlist as separate .mp4 and .ttml files in their own dirs by vid in separate playlist dir
-    tmp_pl_dl_parent_dir_path = Path(out_dir_path).parent
-    playlist_dl_dir_path = dl_all_videos_in_playlist(playlist_url, tmp_pl_dl_parent_dir_path, replace_spaces_with = "_", sub_style = "separate_file__mp4_ttml")
+    tmp_pl_dl_dir_parent_path = Path(out_dir_path).parent
+    tmp_pl_dl_dir_path = dl_all_videos_in_playlist(playlist_url, tmp_pl_dl_dir_parent_path, replace_spaces_with = "_", sub_style = "separate_file__mp4_ttml")
+    print(f"Playlist videos with separate subtitle files have been downloaded to: {tmp_pl_dl_dir_path=}")
 
     # Correct .ttml sub times for all downloaded vids
-    re_time_subs_for_separate_sub_yt_playlist_dl_dir(playlist_dl_dir_path)
+    print(f"Fixing subtitle timing for downloaded playlist of YT vids: {tmp_pl_dl_dir_path=}")
+    re_time_subs_for_separate_sub_yt_playlist_dl_dir(tmp_pl_dl_dir_path)
 
     # For each vid dir, convert re-timed .ttml to srt, then combine the .srt and .mp4 to make a .mkv with embedded subs
-    make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path = playlist_dl_dir_path,
-                                                                             out_dir_path = out_dir_path)
+    make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path = tmp_pl_dl_dir_path,
+                                                                           out_dir_path = out_dir_path)
 
     # Delete original playlist download
-    fsu.delete_if_exists(playlist_dl_dir_path)
+    fsu.delete_if_exists(tmp_pl_dl_dir_path)
 
 
 
