@@ -23,7 +23,7 @@ from pytube import YouTube
 ####################################################################################################
 # Should probably be in separate utility file/submodule
 ####################################################################################################
-def _get_path_safe_str(in_str, replace_spaces_with = None):
+def _get_path_safe_str(in_str, replace_spaces_with):
     """ # Replace any special chars that can't be in path with '_' """
     path_safe_str = in_str.translate({ord(c): "_" for c in ":*<>?|`"})
 
@@ -147,7 +147,7 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
     for video in p.videos:
         # Replace any special chars that can't be in path with '_'
         # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
-        path_safe_video_title = _get_path_safe_str(video.title)
+        path_safe_video_title = _get_path_safe_str(video.title, replace_spaces_with)
         # path_safe_video_title = _get_path_safe_str(video.title).replace(" ", replace_spaces_with)
 
         # print(video.caption_tracks())
@@ -160,7 +160,9 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         # LATER should check if yt vid has actual subtitles before just downloading auto-subs
         if sub_style == "separate_file__mp4_ttml":
             dl_dir_path = os.path.join(playlist_dir_path, path_safe_video_title)
+            print(f"{dl_dir_path=}")
             dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(video.watch_url, dl_dir_path)
+            # exit()
             # out_template = os.path.join(playlist_dir_path, path_safe_video_title, path_safe_video_title) + ".%(ext)s"
 
             # if replace_spaces_with != None:
@@ -186,8 +188,8 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             # if replace_spaces_with != None:
             #     out_vid_path = out_vid_path.replace(" ", replace_spaces_with)
 
-            # Create parent dir and nested parents if needed
-            Path(out_vid_path).parent.mkdir(parents=True, exist_ok=True)
+            # # Create parent dir and nested parents if needed
+            # Path(out_vid_path).parent.mkdir(parents=True, exist_ok=True)
 
             print(f"Downloading {video.title} to {out_vid_path}...")
             st = video.streams.get_highest_resolution()
