@@ -147,7 +147,9 @@ def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path
         return out_mp4_path, out_ttml_path
 
 
-
+####################################################################################################
+# Download Individual Videos
+####################################################################################################
 def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", re_time_subs = True):
     # dl with separate mp4 and srt sub file
     mp4_path, ttml_path = dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with)
@@ -174,9 +176,6 @@ def dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url, out_parent_dir_path, r
     fsu.delete_if_exists(ttml_path)
     fsu.delete_if_exists(srt_sub_path)
 
-    # exit()
-
-
 
 # Could improve with threading
 # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
@@ -193,7 +192,6 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
     fsu.delete_if_exists(playlist_dir_path)
     Path(playlist_dir_path).mkdir(parents=True, exist_ok=True)
 
-
     for video in p.videos:
         # Replace any special chars that can't be in path with '_'
         # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
@@ -204,13 +202,6 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         #     print(f"{caption_track=}")
         # print(video.initial_data)
         # print(video.initial_data)
-
-        # # If want to end up with mkv w/embedded subs, better to just dl as separate files first, then convert, in case
-        # # there is a problem with the conversion b/c downloading takes much longer
-        # embed_subs_as_mkv = False
-        # if sub_style == "embed_subs_as_mkv":
-        #     embed_subs_as_mkv = True
-        #     sub_style = "separate_file__mp4_ttml"
 
         # Very lazy way of doing things, should probably use pytube for everything
         # LATER should check if yt vid has actual subtitles before just downloading auto-subs
@@ -252,17 +243,11 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         else:
             raise Exception(f"ERROR: Invalid {sub_style=}")
 
-
-        # if embed_subs_as_mkv:
-        #     print("about to convert to mkv")
-        #     # make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(playlist_dir_path, playlist_dir_path)
-
-        #     # # Delete all dirs
-        #     # separate_vid_sub_yt_dl_dir_path_l = fsu.get_dir_content_l(playlist_dir_path, "dir")
-        #     # fsu.delete_if_exists(separate_vid_sub_yt_dl_dir_path_l)
     return playlist_dir_path
 
-
+####################################################################################################
+# Work from playlist_dl_dir
+####################################################################################################
 def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path, out_dir_path):
     if not Path(in_pl_dir_path).is_dir():
         raise Exception(f"Error: Input dir does not exit: {in_pl_dir_path=}")
@@ -294,14 +279,17 @@ def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl
         combine_mp4_and_sub_into_mkv(mp4_path, tmp_srt_path, out_mkv_path)
 
         # Check to make sure mkv created
-        if not out_mkv_path.is_file():
+        if not Path(out_mkv_path).is_file():
             raise Exception(f"Error: .mkv file does not exist after it should have been created: {out_mkv_path=}")
 
         # Delete srt
         fsu.delete_if_exists(tmp_srt_path)
-    # exit()
 
 
+
+####################################################################################################
+# Fix timing for .ttml Auto-Subs
+####################################################################################################
 
 # LATER if last sub hanging around too long, could use # https://stackoverflow.com/questions/14295673/convert-string-into-datetime-time-object
 def _fix_ttml_sub_times(in_ttml_path):
@@ -318,11 +306,6 @@ def _fix_ttml_sub_times(in_ttml_path):
 
     og_ttml_lines = txt_logger.read(in_ttml_path)
     new_ttml_lines = og_ttml_lines
-
-    subs_started = False
-
-    prev_begin = None
-    prev_end = None
 
     # for line_num, line in enumerate(og_ttml_lines):
     for line_num in range(len(og_ttml_lines)):
@@ -361,6 +344,7 @@ def _fix_ttml_sub_times(in_ttml_path):
 
     txt_logger.write(new_ttml_lines, in_ttml_path)
 
+
 def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
     vid_sub_dir_path_l = fsu.get_dir_content_l(in_dir_path, "dir")
 
@@ -378,7 +362,10 @@ def re_time_subs_for_separate_sub_yt_playlist_dl_dir(in_dir_path):
 
         print(f"Fixing timing for {sub_file_path=}")
         _fix_ttml_sub_times(sub_file_path)
-        
+
+####################################################################################################
+# Download Playlist
+####################################################################################################
 
 def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, out_dir_path):
     """ Best for downloading YT playlist with auto-subs to be manually edited without losing subs """
@@ -396,7 +383,7 @@ def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, 
     # For each vid dir, convert re-timed .ttml to srt, then combine the .srt and .mp4 to make a .mkv with embedded subs
     make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path = playlist_dl_dir_path,
                                                                              out_dir_path = out_dir_path)
-
+                                                                             
     # Delete original playlist download
     fsu.delete_if_exists(playlist_dl_dir_path)
 
