@@ -72,7 +72,7 @@ def _get_path_safe_str(in_str):
 # def dl_vid_w_seperate_sub_file(vid_url, out_dir_path, replace_spaces_with = "_"):
 #     v = 
 #     out_template = os.path.join(out_dir_path)
-#     cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-format ttml --no-playlist -o "test_dir/title.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
+#     cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "test_dir/title.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
 
 
 # def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_"):
@@ -85,7 +85,7 @@ def _get_path_safe_str(in_str):
 #         out_template = out_template.replace(" ", replace_spaces_with)
 
 #     # dl with separate mp4 and srt sub file
-#     cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --no-playlist -o "{out_template}" {vid.watch_url}'
+#     cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --no-playlist -o "{out_template}" {vid.watch_url}'
 #     print(f"Running cmd: {cmd}...")
 #     subprocess.call(cmd, shell = True)
 
@@ -125,8 +125,8 @@ def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path
         out_template = out_template.replace(" ", replace_spaces_with)
 
     # dl with separate mp4 and srt sub file
-    # cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --no-playlist -o "{out_template}" {vid.watch_url}'
-    cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
+    # cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --no-playlist -o "{out_template}" {vid.watch_url}'
+    cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {vid.watch_url}'
     print(f"Running cmd: {cmd}...")
     subprocess.call(cmd, shell = True)
 
@@ -220,8 +220,8 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             if replace_spaces_with != None:
                 out_template = out_template.replace(" ", replace_spaces_with)
 
-            cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-format ttml --no-playlist -o "{out_template}" {video.watch_url}'
-            # cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=srt]/best[ext={vid_ext}]/best --write-auto-subs --sub-format srt --no-playlist -o "{out_template}" {video.watch_url}'
+            cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "{out_template}" {video.watch_url}'
+            # cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=srt]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --sub-format srt --no-playlist -o "{out_template}" {video.watch_url}'
             print(f"Running cmd: {cmd}...")
             subprocess.call(cmd, shell = True)
 
@@ -232,7 +232,7 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             if replace_spaces_with != None:
                 out_template = out_template.replace(" ", replace_spaces_with)
 
-            cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
+            cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
             print(f"Running cmd: {cmd}...")
             subprocess.call(cmd, shell = True)
 
@@ -244,7 +244,7 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
             # if replace_spaces_with != None:
             #     out_template = out_template.replace(" ", replace_spaces_with)
 
-            # cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
+            # cmd = f'yt-dlp -f bestvideo[ext={vid_ext}]+bestaudio[ext=ttml]/best[ext={vid_ext}]/best --write-auto-subs --sub-lang "en.*" --embed-subs --no-playlist -o "{out_template}" {video.watch_url}'
             # print(f"Running cmd: {cmd}...")
             # subprocess.call(cmd, shell = True)
 
@@ -365,12 +365,12 @@ if __name__ == "__main__":
     # # cmd = f"youtube-dl --write-auto-sub --write-sub --sub-lang en --sub-format srt/sub/ssa/vtt/ass/best --embed-subs https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45 -o {out_dir_path}"
     # # cmd = f"youtube-dl --write-auto-sub https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
     # # cmd = f"youtube-dl --write-auto-sub https://www.youtube.com/watch?v=HVzdSPhcMUo"
-    # # cmd = f"yt-dlp --write-auto-subs --sub-format srt --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo"
-    # # cmd = f"yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best --write-auto-subs --sub-format srt --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo"
-    # # cmd = f"yt-dlp -f bestvideo[ext=mp4] --write-auto-subs --sub-format ttml --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo" # WORKS!!!!!!!!!!
-    # # cmd = f'yt-dlp -f bestvideo[ext=mp4] --write-auto-subs --sub-format ttml --no-playlist -o "%(playlisttitle)s/%(title)s.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
-    # cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-format ttml --no-playlist -o "test_dir/title.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
-    # # cmd = f"yt-dlp --write-auto-subs --no-playlist https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
+    # # cmd = f"yt-dlp --write-auto-subs --sub-lang "en.*" --sub-format srt --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo"
+    # # cmd = f"yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format srt --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo"
+    # # cmd = f"yt-dlp -f bestvideo[ext=mp4] --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist https://www.youtube.com/watch?v=HVzdSPhcMUo" # WORKS!!!!!!!!!!
+    # # cmd = f'yt-dlp -f bestvideo[ext=mp4] --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "%(playlisttitle)s/%(title)s.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
+    # cmd = f'yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=ttml]/best[ext=mp4]/best --write-auto-subs --sub-lang "en.*" --sub-format ttml --no-playlist -o "test_dir/title.%(ext)s" https://www.youtube.com/watch?v=HVzdSPhcMUo'
+    # # cmd = f"yt-dlp --write-auto-subs --sub-lang "en.*" --no-playlist https://www.youtube.com/watch?v=Roc89oOZOF4&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=45"
     # print(f"{cmd=}")
     # subprocess.call(cmd, shell=True)
 
@@ -386,17 +386,17 @@ if __name__ == "__main__":
     # re_time_subs_for_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed")
 
     # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
-    dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-    # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
-                                #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_embed_auto_subs__just_files",
-                                #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/test_sep_playlist2",
-                                 out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_mkv_embedded_subs_re_timed",
-                                  replace_spaces_with = "_",
-                                  sub_style = "embed_subs_as_mkv")
+    # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+    # # dl_all_videos_in_playlist(playlist_url = "https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
+    #                             #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_embed_auto_subs__just_files",
+    #                             #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/test_sep_playlist2",
+    #                              out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_mkv_embedded_subs_re_timed",
+    #                               replace_spaces_with = "_",
+    #                               sub_style = "embed_subs_as_mkv")
 
-    # dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url = "https://www.youtube.com/watch?v=gT1bqKc6zKo&list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J&index=2",
-    #  out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test",
-    #   replace_spaces_with = "_")
+    dl_yt_vid_as_mkv_w_embedded_subs_w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
+     out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV2_mkv_yt_dl_test",
+      replace_spaces_with = "_")
 
     # convert_subs("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.en.ttml",
     # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.srt")
