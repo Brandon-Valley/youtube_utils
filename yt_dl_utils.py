@@ -1,5 +1,6 @@
 import os
 import subprocess
+import re
 from pathlib import Path
 from pprint import pprint
 
@@ -18,9 +19,10 @@ class No_Valid_Subs_Exception(Exception):
 ####################################################################################################
 # Should probably be in separate utility file/submodule
 ####################################################################################################
-def _get_path_safe_str(in_str, replace_spaces_with):
+def _get_path_safe_str(in_str, replace_spaces_with, replace_illegle_chars_with = "_"):
     """ # Replace any special chars that can't be in path with '_' """
-    path_safe_str = in_str.translate({ord(c): "_" for c in "&/:*<>?|`"})
+    # path_safe_str = in_str.translate({ord(c): "_" for c in "&/:*<>?|`"}) # TODO TEST
+    path_safe_str = re.sub(r'[^\w_. -]', replace_illegle_chars_with, in_str)
 
     if replace_spaces_with != None:
         path_safe_str = path_safe_str.replace(" ", replace_spaces_with)
