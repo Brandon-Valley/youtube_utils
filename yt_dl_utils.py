@@ -12,7 +12,6 @@ from sms.file_system_utils import file_system_utils as fsu\
 
 
 class No_Valid_Subs_Exception(Exception):
-    "en-en makes me sad"
     pass
 
 
@@ -214,7 +213,7 @@ def dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url, out_parent_d
     print(f"{mp4_path=}")
     print(f"{srt_sub_path=}")
 
-    out_mkv_path = srt_sub_path.replace(".mp4", ".mkv")
+    out_mkv_path = srt_sub_path.replace(".srt", ".mkv")
     print(f"{out_mkv_path=}")
     # exit()
     print(f"{mp4_path=}")
@@ -230,7 +229,7 @@ def dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url, out_parent_d
 
 
 def _choose_best_sub_file_from_l(sub_path_l):
-    SUB_PRIORITY_PATH_L = [".en-orig", ".en."]
+    SUB_PRIORITY_PATH_L = [".en-orig", ".en.", ".en-en."]
 
     for sub_type_str in SUB_PRIORITY_PATH_L:
         for sub_path in sub_path_l:
@@ -244,8 +243,8 @@ def _delete_all_but_best_sub_file_in_dir(dir_path, sub_file_ext = ".ttml"):
     sub_file_path_l = list(Path(dir_path).glob(f"*{sub_file_ext}"))
     best_sub_file_path = _choose_best_sub_file_from_l(sub_file_path_l)
 
-    if ".en-en." in Path(best_sub_file_path).name:
-        raise(No_Valid_Subs_Exception)
+    # if ".en-en." in Path(best_sub_file_path).name:
+    #     raise(No_Valid_Subs_Exception)
 
     for sub_file_path in sub_file_path_l:
         if sub_file_path != best_sub_file_path:
@@ -301,7 +300,6 @@ def make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl
 # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
 def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", sub_style = "no_subs", vid_ext = "mp4"):
     """ Fixing sub timing is outside the scope of this func 
-        - Currently skips any videos that don't have compatible subs like .en-en. >:(
     """
     # https://www.codegrepper.com/tpc/python+download+youtube+playlist
     p = Playlist(playlist_url)
