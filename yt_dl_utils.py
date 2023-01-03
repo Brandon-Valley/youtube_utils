@@ -20,7 +20,7 @@ class No_Valid_Subs_Exception(Exception):
 ####################################################################################################
 def _get_path_safe_str(in_str, replace_spaces_with):
     """ # Replace any special chars that can't be in path with '_' """
-    path_safe_str = in_str.translate({ord(c): "_" for c in "/:*<>?|`"})
+    path_safe_str = in_str.translate({ord(c): "_" for c in "&/:*<>?|`"})
 
     if replace_spaces_with != None:
         path_safe_str = path_safe_str.replace(" ", replace_spaces_with)
@@ -231,6 +231,9 @@ def dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url, out_parent_d
 def _choose_best_sub_file_from_l(sub_path_l):
     SUB_PRIORITY_PATH_L = [".en-orig", ".en.", ".en-en."]
 
+    if len(sub_path_l) == 0:
+        raise No_Valid_Subs_Exception
+
     for sub_type_str in SUB_PRIORITY_PATH_L:
         for sub_path in sub_path_l:
             print(f"{Path(sub_path).name=}")
@@ -374,10 +377,10 @@ def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, 
 
 
 if __name__ == "__main__":
-    # # # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
-    # # dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
-    # dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-    #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_mkv_e_subs_re_timed")
+    # # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
+    # dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
+    dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+     out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_mkv_e_subs_re_timed")
 
     # out_template = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/test_sub" + ".%(ext)s"
     # # url = "https://www.youtube.com/watch?v=gT1bqKc6zKo&list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J&index=2"
@@ -393,10 +396,10 @@ if __name__ == "__main__":
 
     # dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_")
 
-    # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=yPM77NPZyJo&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=26",
-    dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
-     out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV3_mkv_yt_dl_test",
-      replace_spaces_with = "_")
+    # # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=yPM77NPZyJo&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=26",
+    # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
+    #  out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV3_mkv_yt_dl_test",
+    #   replace_spaces_with = "_")
 
     # convert_subs("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.en.ttml",
     # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.srt")
