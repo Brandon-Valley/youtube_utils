@@ -78,6 +78,7 @@ def convert_subs_to_new_ext_in_place_and_delete_og(in_sub_path, out_sub_ext):
 
 # LATER REALLY SHOULD ADD THIS TO VID_EDIT_UTILS
 # TODO Probably way to combine .mp4 and .ttml directly, never looked into this hard enough
+# TODO May be similar/behind mutiple subs option in tb_vid repo
 def combine_mp4_and_sub_into_mkv(in_mp4_path, in_sub_path, out_mkv_path):
     """ Sub MAY need to be .srt """
     cmd = f'ffmpeg -i {in_mp4_path} -i {in_sub_path} -c copy -c:s copy {out_mkv_path}'
@@ -410,7 +411,7 @@ def dl_yt_playlist__fix_sub_times_convert_to__mp4_srt(playlist_url, out_dir_path
     # For each nested ttml file, convert re-timed .ttml to srt
     ttml_path_l = list(Path(out_dir_path).rglob(f"*.ttml"))
     for ttml_path in ttml_path_l:
-        print(f"{ttml_path=}")
+        # print(f"{ttml_path=}")
         convert_subs_to_new_ext_in_place_and_delete_og(ttml_path, ".srt")
 
     return pl_dl_dir_path
