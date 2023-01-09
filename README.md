@@ -14,3 +14,6 @@ Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRG
  - https://www.youtube.com/channel/UCxfpjrP56c2ADNXK9RQ1zAg
 
 
+get sub from vid file - https://github.com/byroot/ruby-osdb
+
+https://pypi.org/project/pysrt/ 

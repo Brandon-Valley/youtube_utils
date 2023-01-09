@@ -37,6 +37,46 @@ def convert_subs(in_sub_path, out_sub_path):
     subprocess.call(cmd, shell=True)
 
 # LATER REALLY SHOULD ADD THIS TO VID_EDIT_UTILS
+def convert_subs_to_new_ext_in_place_and_delete_og(in_sub_path, out_sub_ext):
+    '''
+        Example:
+            Input:
+                - in_sub_path - "C:\p\test.ttml"
+                - out_sub_ext - ".srt"
+            Output:
+                - Creates "C:\p\test.srt"
+                - Deletes "C:\p\test.ttml" (if srt created successfully)
+    '''
+    # print(f"{Path(in_sub_path).__str__()=}")
+    # print(f"{len(Path(in_sub_path).__str__())=}")
+    # print(f"{len(Path(in_sub_path))=}")
+
+    if len(Path(in_sub_path).__str__()) > 256:
+        raise Exception(f"ERROR: {len(Path(in_sub_path).__str__())=} > 256, this will make the next '.is_file' check fail (on Windows at least)")
+
+    if not fsu.is_file(in_sub_path):
+        raise Exception(f"ERROR: {in_sub_path=} is not an existing file")
+
+    # Make path of new sub file to be created, path same except ext
+    new_sub_path = os.path.join(Path(in_sub_path).parent.__str__(), Path(in_sub_path).stem + out_sub_ext)
+
+    if in_sub_path == new_sub_path:
+        raise Exception(f"ERROR: {in_sub_path=} == {new_sub_path=}, continuing with this func will only result in deleting in_sub_path")
+
+    fsu.delete_if_exists(new_sub_path)
+
+    # Create new_sub_path from in_sub_path (now both sub files will be in same dir w/ same stem)
+    convert_subs(in_sub_path, new_sub_path)
+
+    # Raise Exception if something goes wrong to prevent in_sub_path from being deleted without creating new sub file
+    if not Path(new_sub_path).is_file():
+        raise Exception(f"ERROR: {new_sub_path=} was not created from conversion from {in_sub_path}")
+
+    # Remove original sub file leaving only the new sub file in its place
+    fsu.delete_if_exists(in_sub_path)
+
+
+# LATER REALLY SHOULD ADD THIS TO VID_EDIT_UTILS
 # TODO Probably way to combine .mp4 and .ttml directly, never looked into this hard enough
 def combine_mp4_and_sub_into_mkv(in_mp4_path, in_sub_path, out_mkv_path):
     """ Sub MAY need to be .srt """
@@ -185,7 +225,6 @@ def dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path
     out_mp4_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".mp4")
     out_ttml_path = get_lone_ext_file_path_in_dir(out_parent_dir_path, ".ttml")
     return out_mp4_path, out_ttml_path, path_safe_vid_title
-
 
 def dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_", re_time_subs = True):
     fsu.delete_if_exists(out_parent_dir_path)
@@ -353,8 +392,31 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
 
     return playlist_dir_path
 
+def dl_yt_playlist__fix_sub_times_convert_to__mp4_srt(playlist_url, out_dir_path):
+    # Init out_dir_path
+    fsu.delete_if_exists(out_dir_path)
+    Path(out_dir_path).mkdir(parents=True, exist_ok=True)
 
-def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, out_dir_path):
+    # Download playlist as separate .mp4 and .ttml files in their own dirs by vid in separate playlist dir
+    pl_dl_dir_path = dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = "_", sub_style = "separate_file__mp4_ttml")
+    # tmp_pl_dl_dir_parent_path = Path(out_dir_path).parent
+    # pl_dl_dir_path = dl_all_videos_in_playlist(playlist_url, tmp_pl_dl_dir_parent_path, replace_spaces_with = "_", sub_style = "separate_file__mp4_ttml")
+    print(f"Playlist videos with separate subtitle files have been downloaded to: {pl_dl_dir_path=}")
+
+    # Correct .ttml sub times for all downloaded vids
+    print(f"Fixing subtitle timing for downloaded playlist of YT vids: {pl_dl_dir_path=}")
+    re_time_subs_for_separate_sub_yt_playlist_dl_dir(pl_dl_dir_path)
+
+    # For each nested ttml file, convert re-timed .ttml to srt
+    ttml_path_l = list(Path(out_dir_path).rglob(f"*.ttml"))
+    for ttml_path in ttml_path_l:
+        print(f"{ttml_path=}")
+        convert_subs_to_new_ext_in_place_and_delete_og(ttml_path, ".srt")
+
+    return pl_dl_dir_path
+
+
+def dl_yt_playlist__fix_sub_times_convert_to__mkvs_w_embedded_subs(playlist_url, out_dir_path):
     """ Best for downloading YT playlist with auto-subs to be manually edited without losing subs """
     # Init out_dir_path
     fsu.delete_if_exists(out_dir_path)
@@ -372,17 +434,16 @@ def dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs(playlist_url, 
     # For each vid dir, convert re-timed .ttml to srt, then combine the .srt and .mp4 to make a .mkv with embedded subs
     make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir(in_pl_dir_path = tmp_pl_dl_dir_path,
                                                                            out_dir_path = out_dir_path)
-
     # Delete original playlist download
     fsu.delete_if_exists(tmp_pl_dl_dir_path)
 
 
 
 if __name__ == "__main__":
-    # # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
-    # dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
-    dl_yt_playlist__fix_sub_times_convert_to_mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-     out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_mkv_e_subs_re_timed")
+    # # # Great 3 short vid test playlist: https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J
+    # # dl_yt_playlist__fix_sub_times_convert_to__mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J",
+    # dl_yt_playlist__fix_sub_times_convert_to__mkvs_w_embedded_subs("https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+    #  out_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/FG_TBS_pl_mkv_e_subs_re_timed")
 
     # out_template = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/test_sub" + ".%(ext)s"
     # # url = "https://www.youtube.com/watch?v=gT1bqKc6zKo&list=PLfAIhxRGcgam-4wROzza_wfzdHoBJgj2J&index=2"
@@ -396,15 +457,16 @@ if __name__ == "__main__":
     #     line = line.decode("utf-8") 
     #     print(line)
 
-    # dl_yt_vid_and_sub__as__mp4_and_sub__w_vid_title(vid_url, out_parent_dir_path, replace_spaces_with = "_")
+    dl_yt_playlist__fix_sub_times_convert_to__mp4_srt(playlist_url ="https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+     out_dir_path = "C:/p/tik_tb_vid_big_data/ignore/BIG_BOY_fg_TBS")
 
     # # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=yPM77NPZyJo&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=26",
     # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
     #  out_parent_dir_path = "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV3_mkv_yt_dl_test",
     #   replace_spaces_with = "_")
 
-    # convert_subs("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.en.ttml",
-    # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/INIV_mkv_yt_dl_test/Invention_that_backfires_2.srt")
+    # convert_subs("C:/Users/Brandon/Documents/Personal_Projects/tik_tb_vid_b633ig_data/ignore/test/sub_match/Family_Guy__Back_To_The_Pilot_(Clip)___TBS/Family_Guy__Back_To_The_Pilot_(Clip)___TBS.en.ttml",
+    # "C:/Users/Brandon/Documents/Personal_Projects/tik_tb_vid_big_data/ignore/test/sub_match/Family_Guy__Back_To_The_Pilot_(Clip)___TBS/Family_Guy__Back_To_The_Pilot_(Clip)___TBS.en.srt")
     # make_mkv_vid_w_embedded_subs_vids_from_separate_sub_yt_playlist_dl_dir("C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/Family_Guy___TBS__OG_w_seperate_sub_file__time_fixed",
     # "C:/Users/Brandon/Documents/Personal_Projects/youtube_utils/ignore/embed_pl_convert_test_dir")
 
