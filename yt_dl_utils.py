@@ -362,8 +362,8 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
         # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
         try:
             path_safe_video_title = _get_path_safe_str(video.title, replace_spaces_with)
-        except KeyError as e:
-            print(f"WARNING, something was wrong with the video title and threw KeyError, so skipping vid: {str(e)=}")
+        except:
+            print(f"WARNING, something was wrong with the video title and probably threw KeyError / pytube.exceptions.PytubeError, so skipping vid")
             continue
 
         # Very lazy way of doing things, should probably use pytube for everything
