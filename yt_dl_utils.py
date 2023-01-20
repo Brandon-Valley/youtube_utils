@@ -360,7 +360,11 @@ def dl_all_videos_in_playlist(playlist_url, out_dir_path, replace_spaces_with = 
     for video in p.videos:
         # Replace any special chars that can't be in path with '_'
         # Must do this here instead of the whole out_vid_path b/c will mess up C: drive on Windows
-        path_safe_video_title = _get_path_safe_str(video.title, replace_spaces_with)
+        try:
+            path_safe_video_title = _get_path_safe_str(video.title, replace_spaces_with)
+        except KeyError as e:
+            print(f"WARNING, something was wrong with the video title and threw KeyError, so skipping vid: {str(e)=}")
+            continue
 
         # Very lazy way of doing things, should probably use pytube for everything
         # LATER should check if yt vid has actual subtitles before just downloading auto-subs
@@ -458,8 +462,12 @@ if __name__ == "__main__":
     #     line = line.decode("utf-8") 
     #     print(line)
 
-    dl_yt_playlist__fix_sub_times_convert_to__mp4_srt(playlist_url ="https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
-     out_dir_path = "C:/p/tik_tb_vid_big_data/ignore/BIG_BOY_fg_TBS")
+    # TMP VVV THIS IS HOW TO GET INIT FOR SUB METHOD
+    # dl_yt_playlist__fix_sub_times_convert_to__mp4_srt(playlist_url ="https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+    #  out_dir_path = "C:/p/tik_tb_vid_big_data/ignore/BIG_BOY_fg_TBS")
+
+    dl_all_videos_in_playlist(playlist_url ="https://www.youtube.com/playlist?list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ",
+     out_dir_path="C:/p/tik_tb_vid_big_data/ignore/fg_ns_mp4", replace_spaces_with = "_", sub_style = "no_subs", vid_ext = "mp4")
 
     # # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=yPM77NPZyJo&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=26",
     # dl_yt_vid_and_sub__as__mkv_w_embedded_sub__w_vid_title(vid_url = "https://www.youtube.com/watch?v=ORAymXqGREY&list=PLJBo3iyb1U0eNNN4Dij3N-d0rCJpMyAKQ&index=3",
